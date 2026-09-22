@@ -1,1 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#080b12">
+  <meta name="description" content="High Card Duel — BDXbet virtual-points multiplayer game">
+  <title>High Card Duel — BDXbet</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div id="app" class="app">
 
+    <!-- LOBBY -->
+    <section id="lobbyView" class="view active">
+      <header class="topbar">
+        <button id="exitBtn" class="back-btn">← BDXBET</button>
+        <div class="brand-center">
+          <strong>HIGH CARD <span>DUEL</span></strong>
+          <small>1V1 LIVE ARENA</small>
+        </div>
+        <button id="soundBtn" class="icon-btn" aria-label="Toggle sound">🔊</button>
+      </header>
+
+      <div class="connection-row">
+        <div id="connectionPill" class="status-pill offline">
+          <span class="status-dot"></span>
+          CONNECTING
+        </div>
+        <div class="points-pill">
+          ✦ <span id="pointsValue">1,000</span>
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <div class="hero-symbol">
+          <span>♠</span><span>♦</span>
+        </div>
+        <div class="eyebrow">BDXBET GAME ARENA</div>
+        <h1>HIGH CARD <b>DUEL</b></h1>
+        <p>Two players. One card each. Higher card wins.</p>
+      </div>
+
+      <div class="rules-strip">
+        <span>52 CARDS</span><i>•</i><span>1V1</span><i>•</i><span>REAL-TIME</span>
+      </div>
+
+      <button id="playBtn" class="primary-btn big-btn" disabled>
+        <span>⚔️</span> FIND OPPONENT
+      </button>
+
+      <div class="stats-row">
+        <div><small>WINS</small><strong id="wins">0</strong></div>
+        <div><small>LOSSES</small><strong id="losses">0</strong></div>
+        <div><small>DRAWS</small><strong id="draws">0</strong></div>
+      </div>
+
+      <div class="menu-row">
+        <button id="historyBtn" class="menu-btn">📜<span>History</span></button>
+        <button id="howBtn" class="menu-btn">❔<span>How to Play</span></button>
+      </div>
+
+      <div class="safe-note">
+        Virtual Points only • No deposits • No cash-out • No real-money wagering
+      </div>
+    </section>
+
+    <!-- SEARCH -->
+    <section id="searchView" class="view">
+      <div class="center-screen">
+        <div id="searchOrb" class="search-orb">🃏</div>
+        <div id="searchStateLabel" class="eyebrow">MATCHMAKING</div>
+        <h2 id="searchTitle" class="screen-title">FINDING OPPONENT</h2>
+        <p id="searchStatus" class="muted-text">Searching for another player...</p>
+        <div id="dots" class="dots"><i></i><i></i><i></i></div>
+
+        <div id="matchFound" class="match-found hidden">
+          <div class="found-label">MATCH FOUND</div>
+          <div class="found-players">
+            <div class="found-player"><div class="small-avatar">YOU</div><strong>PLAYER <span id="myNumber">1</span></strong></div>
+            <div class="found-vs">VS</div>
+            <div class="found-player"><div class="small-avatar opp">?</div><strong>PLAYER <span id="oppNumber">2</span></strong></div>
+          </div>
+        </div>
+
+        <button id="cancelBtn" class="secondary-btn search-cancel">CANCEL SEARCH</button>
+      </div>
+    </section>
+
+    <!-- ARENA -->
+    <section id="arenaView" class="view">
+      <header class="arena-header">
+        <button id="arenaBackBtn" class="icon-back">←</button>
+        <div>
+          <strong>HIGH CARD DUEL</strong>
+          <small>LIVE MATCH</small>
+        </div>
+        <div class="round-badge">ROUND <span>1</span></div>
+      </header>
+
+      <div id="arenaStatus" class="arena-status">Preparing duel...</div>
+      <div id="countdown" class="countdown">3</div>
+
+      <div class="duel-area">
+        <div class="duel-player">
+          <div class="player-role">OPPONENT</div>
+          <div id="oppName" class="player-number">PLAYER 2</div>
+          <div id="oppCard" class="playing-card back-card" aria-label="Opponent card"></div>
+        </div>
+
+        <div class="vs-badge">VS</div>
+
+        <div class="duel-player">
+          <div class="player-role">YOU</div>
+          <div id="youName" class="player-number">PLAYER 1</div>
+          <div id="yourCard" class="playing-card back-card" aria-label="Your card"></div>
+        </div>
+      </div>
+
+      <div class="deck-hint">
+        <span>♠</span><span>♥</span><span>♦</span><span>♣</span>
+        <small>Server deals the cards • Both cards are revealed automatically</small>
+      </div>
+    </section>
+
+    <!-- RESULT -->
+    <section id="resultView" class="view">
+      <div class="result-wrap">
+        <div id="resultIcon" class="result-icon">🏆</div>
+        <div id="resultKicker" class="eyebrow">DUEL COMPLETE</div>
+        <h2 id="resultTitle" class="result-title">YOU WIN</h2>
+        <p id="resultSub" class="muted-text">Your card was higher.</p>
+
+        <div class="result-cards">
+          <div class="result-side">
+            <small>OPPONENT</small>
+            <div id="resultOppCard"></div>
+          </div>
+          <div class="result-vs">VS</div>
+          <div class="result-side">
+            <small>YOU</small>
+            <div id="resultYourCard"></div>
+          </div>
+        </div>
+
+        <div id="pointsDelta" class="points-delta">+20 VIRTUAL POINTS</div>
+
+        <button id="playAgainBtn" class="primary-btn big-btn">⚔️ PLAY AGAIN</button>
+        <button id="resultBackBtn" class="secondary-btn">← BACK TO GAME</button>
+      </div>
+    </section>
+
+    <!-- HOW TO PLAY -->
+    <section id="howView" class="view">
+      <header class="topbar">
+        <button id="howBackBtn" class="back-btn">← BACK</button>
+        <div class="brand-center"><strong>HOW TO PLAY</strong></div>
+        <div style="width:42px"></div>
+      </header>
+
+      <div class="how-card">
+        <div class="how-step"><b>1</b><div><strong>Find an opponent</strong><p>Press FIND OPPONENT and wait for another connected player.</p></div></div>
+        <div class="how-step"><b>2</b><div><strong>Countdown</strong><p>Both players see the same 3 → 2 → 1 duel countdown.</p></div></div>
+        <div class="how-step"><b>3</b><div><strong>Reveal</strong><p>The server deals one card to each player from a shuffled 52-card deck.</p></div></div>
+        <div class="how-step"><b>4</b><div><strong>Compare</strong><p>A, K, Q, J and numbered cards are compared by rank value. Same rank = draw.</p></div></div>
+        <div class="how-step"><b>5</b><div><strong>Play again</strong><p>The result screen lets both players return and start another match.</p></div></div>
+      </div>
+
+      <div class="safe-note">This build uses virtual points only.</div>
+    </section>
+
+    <!-- HISTORY -->
+    <section id="historyView" class="view">
+      <header class="topbar">
+        <button id="historyBackBtn" class="back-btn">← BACK</button>
+        <div class="brand-center"><strong>MATCH HISTORY</strong></div>
+        <div style="width:42px"></div>
+      </header>
+
+      <div id="historyList" class="history-list"></div>
+      <button id="clearHistoryBtn" class="secondary-btn">CLEAR LOCAL HISTORY</button>
+      <div class="tiny-note">History is stored only on this device.</div>
+    </section>
+
+    <div id="toast" class="toast"></div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+  <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>
