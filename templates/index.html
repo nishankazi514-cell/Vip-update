@@ -1,1 +1,140 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>High Card Duel</title><link rel="stylesheet" href="/static/style.css"><script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script></head><body><main><header><button id="backBtn">←</button><div><b>HIGH CARD DUEL</b><small id="connection">CONNECTING...</small></div><span>ROUND <i id="roundNo">1</i></span></header><section id="homeScreen" class="screen active"><div class="box"><div class="logo">HCD</div><h2>1V1 CARD DUEL</h2><p>Find another player and reveal one card each.</p><button id="findBtn" class="primary">FIND OPPONENT</button><p id="homeStatus">Ready</p></div></section><section id="searchScreen" class="screen"><div class="box"><div class="spin"></div><h2>SEARCHING...</h2><p id="searchStatus">Looking for another player</p><button id="cancelBtn">CANCEL</button></div></section><section id="arenaScreen" class="screen"><div id="arenaStatus" class="bar">Preparing duel...</div><div id="countdown" class="count"></div><div class="players"><div><label>OPPONENT</label><small id="opponentNo">PLAYER 1</small><div id="opponentCard" class="card back">HCD</div></div><div class="vs">VS</div><div><label>YOU</label><small id="youNo">PLAYER 2</small><div id="yourCard" class="card back">HCD</div></div></div><p class="hint">Cards are revealed automatically.</p></section><section id="resultScreen" class="screen"><div id="resultIcon" class="resultIcon">✓</div><h2 id="resultTitle">YOU WIN</h2><p id="resultSub"></p><div class="resultCards"><div><small>OPPONENT</small><div id="resultOppCard" class="card"></div></div><div><small>YOU</small><div id="resultYourCard" class="card"></div></div></div><button id="playAgainBtn" class="primary">PLAY AGAIN</button></section></main><script src="/static/main.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#090a13">
+  <title>Speed Tap Arena</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <div id="conn-banner" class="conn-banner" role="status" hidden>Connection lost. Trying to reconnect…</div>
+  <div id="toast" class="toast" role="status" hidden></div>
+  <div id="sr-status" class="sr-only" aria-live="polite"></div>
+
+  <main id="app">
+
+    <!-- ============ HOME ============ -->
+    <section id="screen-home" class="screen screen--home is-active" aria-labelledby="game-title">
+      <div class="home__inner">
+        <h1 id="game-title" class="logo">
+          <span>Speed</span>
+          <span>Tap</span>
+          <span>Arena</span>
+        </h1>
+        <p class="tagline">Two players. One signal. Fastest finger wins.</p>
+
+        <label class="field" for="name-input">
+          <span class="field__label">Your name</span>
+          <input id="name-input" type="text" maxlength="14" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Player">
+        </label>
+
+        <button id="btn-find" class="btn btn--primary" type="button" disabled>Find match</button>
+        <p id="stats" class="stats" aria-live="polite">Connecting to server…</p>
+
+        <ul class="rules">
+          <li>Best of 3 rounds. Win 2 rounds to win the match.</li>
+          <li>Wait for the screen to turn green, then tap anywhere.</li>
+          <li>Tap before it turns green and you lose the round.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ QUEUE ============ -->
+    <section id="screen-queue" class="screen screen--queue" aria-labelledby="queue-title">
+      <div class="queue__inner">
+        <div class="radar" aria-hidden="true"></div>
+        <h2 id="queue-title" class="queue__title">Looking for an opponent</h2>
+        <p class="queue__sub">You will be matched as soon as another player joins.</p>
+        <button id="btn-cancel" class="btn btn--ghost" type="button">Cancel search</button>
+      </div>
+    </section>
+
+    <!-- ============ ARENA ============ -->
+    <section id="screen-arena" class="screen screen--arena" data-phase="idle" aria-label="Game arena. Tap anywhere when the screen turns green.">
+      <header class="hud" data-no-tap>
+        <div class="hud__side hud__side--you">
+          <span id="you-name" class="hud__name">You</span>
+          <span id="you-pips" class="pips" aria-hidden="true"></span>
+        </div>
+        <div class="hud__center">
+          <span id="round-label" class="hud__round">Round 1</span>
+          <span class="hud__hint">Best of 3</span>
+        </div>
+        <div class="hud__side hud__side--opp">
+          <span id="opp-name" class="hud__name">Opponent</span>
+          <span id="opp-pips" class="pips" aria-hidden="true"></span>
+        </div>
+      </header>
+
+      <div class="stage">
+        <p id="stage-kicker" class="stage__kicker"></p>
+        <p id="stage-main" class="stage__main"></p>
+        <p id="stage-sub" class="stage__sub"></p>
+      </div>
+
+      <div id="ring" class="ring" aria-hidden="true"></div>
+
+      <div id="round-card" class="round-card" data-outcome="draw" hidden>
+        <p id="rc-title" class="round-card__title"></p>
+        <div class="round-card__times">
+          <div>
+            <span class="t-label">You</span>
+            <span id="rc-you" class="t-val">—</span>
+          </div>
+          <div>
+            <span class="t-label">Opponent</span>
+            <span id="rc-opp" class="t-val">—</span>
+          </div>
+        </div>
+        <p id="rc-note" class="round-card__note"></p>
+      </div>
+
+      <button id="btn-quit" class="btn btn--tiny" type="button" data-no-tap>Quit match</button>
+    </section>
+
+  </main>
+
+  <!-- ============ FINAL POPUP ============ -->
+  <div id="final" class="final" role="dialog" aria-modal="true" aria-labelledby="final-title" data-outcome="victory" hidden>
+    <div class="final__panel">
+      <h2 id="final-title" class="final__title">Victory</h2>
+      <p id="final-score" class="final__score">2 – 0</p>
+      <p id="final-reason" class="final__reason"></p>
+
+      <table class="recap">
+        <caption class="sr-only">Round summary</caption>
+        <thead>
+          <tr><th scope="col">Round</th><th scope="col">You</th><th scope="col">Opponent</th><th scope="col">Result</th></tr>
+        </thead>
+        <tbody id="recap-body"></tbody>
+      </table>
+
+      <div class="final__actions">
+        <button id="btn-again" class="btn btn--primary" type="button">Play again</button>
+        <button id="btn-home" class="btn btn--ghost" type="button">Home</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Socket.IO with multiple CDN fallbacks -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script>
+    if (typeof io === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.5/dist/socket.io.min.js"><\/script>');
+    }
+  </script>
+  <script>
+    if (typeof io === 'undefined') {
+      document.write('<script src="https://unpkg.com/socket.io-client@4.7.5/dist/socket.io.min.js"><\/script>');
+    }
+  </script>
+
+  <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>
