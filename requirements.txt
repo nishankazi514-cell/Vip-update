@@ -1,3 +1,7 @@
-Flask==3.1.2
-Flask-SocketIO==5.5.1
-eventlet==0.40.3
+Flask>=3.0,<4.0
+Flask-SocketIO>=5.3.6,<6.0
+eventlet>=0.36.1
+
+# Optional, for production:
+# gunicorn>=22.0
+#   gunicorn -k eventlet -w 1 -b 0.0.0.0:5000 app:app
